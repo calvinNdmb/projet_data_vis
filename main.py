@@ -15,9 +15,28 @@ from bokeh.plotting import figure
 #centre =["MACRON","BAYROU"]
 
 def calcule_vote_camp(row, candidates):
+    """
+    Calculates the total number of votes for a given row of candidate data.
+
+    Args:
+        row (pandas.Series): A row of candidate data.
+        candidates (list): A list of column names representing the candidates.
+
+    Returns:
+        int: The total number of votes for the given row of candidate data.
+    """
     return row[candidates].sum()
 
 def calcule_color(row):
+    """
+    Determines the color of a row based on the number of candidates in each column.
+
+    Args:
+        row (pandas.Series): A pandas Series representing a row of data.
+
+    Returns:
+        str: The color of the row, which can be 'blue', 'white', or 'red'.
+    """
     if row.right_candidates > row.center_candidates  and row.right_candidates > row.left_candidates :
         return 'blue'
     if row.center_candidates > row.left_candidates :
@@ -26,6 +45,23 @@ def calcule_color(row):
         return 'red'
      
 def slider_annee(dfannee_2012,dfannee_2017,dfannee_2022):
+    """
+    Displays a slider to select a year and shows a bar chart of the votes per candidate for the selected year.
+
+    Parameters:
+    -----------
+    dfannee_2012 : pandas.DataFrame
+        Dataframe containing the votes per candidate for the year 2012.
+    dfannee_2017 : pandas.DataFrame
+        Dataframe containing the votes per candidate for the year 2017.
+    dfannee_2022 : pandas.DataFrame
+        Dataframe containing the votes per candidate for the year 2022.
+
+    Returns:
+    --------
+    int
+        The selected year.
+    """
     slid = st.select_slider(
         'Select a year',
         options=[2012,2017,2022])
@@ -96,6 +132,18 @@ def slider_annee(dfannee_2012,dfannee_2017,dfannee_2022):
     return slid
 
 def geo_map_vote(df):
+    """
+    Creates a choropleth map of France with each department colored according to the percentage of votes for a specific candidate.
+    
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+        A DataFrame containing the percentage of votes for a specific candidate in each department of France.
+    
+    Returns:
+    --------
+    None
+    """
     m = folium.Map(location=[46.603354, 1.888334], min_zoom=6, max_zoom=6)
     gdf_departments = gpd.read_file("departements.geojson")
     gdf_departments = gdf_departments.merge(df, left_on='nom', right_on='Département')
@@ -128,6 +176,17 @@ def geo_map_vote(df):
     folium_static(m)
 
 def geo_map_vote2(df):
+    """
+    Creates a choropleth map of France, with each department colored according to the percentage of votes received by
+    right, left, and center candidates in the given DataFrame.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing the percentage of votes received by right, left, and center
+            candidates in each department of France.
+
+    Returns:
+        bokeh.plotting.figure.Figure: A Bokeh figure object containing the choropleth map.
+    """
     gdf_departments = gpd.read_file("departements.geojson")
     gdf_departments = gdf_departments.merge(df, left_on='nom', right_on='Département')
 
@@ -147,14 +206,27 @@ def geo_map_vote2(df):
     # Add the Hover tool
     hover = HoverTool()
     hover.tooltips = [("Department", "@nom"),
-                      ("Percentage of Votes", "@right_candidates"),
-                      ("Percentage of Votes", "@left_candidates"),
-                      ("Percentage of Votes", "@center_candidates")]
+                      ("Percentage of Votes for right", "@right_candidates"),
+                      ("Percentage of Votes for left", "@left_candidates"),
+                      ("Percentage of Votes for center", "@center_candidates")]
     p.add_tools(hover)
 
     return p
 
-def barchart_plotly(df):
+def barchart_plotly(df: pd.DataFrame):
+    """
+    Creates a grouped bar chart using Plotly library and displays it using Streamlit.
+
+    Args:
+    - df (pd.DataFrame): A pandas DataFrame containing the data to be plotted. It should have the following columns:
+        - 'Département': The name of the department (string).
+        - 'left_candidates': The number of candidates from the left party (int).
+        - 'right_candidates': The number of candidates from the right party (int).
+        - 'center_candidates': The number of candidates from the center party (int).
+
+    Returns:
+    - None
+    """
     fig = go.Figure(data=[
         go.Bar(name='Left', x=df['Département'], y=df['left_candidates'], marker=dict(color='red')),
         go.Bar(name='Right', x=df['Département'], y=df['right_candidates'], marker=dict(color='blue')),
@@ -164,6 +236,15 @@ def barchart_plotly(df):
     st.plotly_chart(fig)
 
 def piechart_plotly(df):
+    """
+    Creates a pie chart using Plotly library to visualize the distribution of candidates in a dataframe.
+
+    Args:
+    df (pandas.DataFrame): A pandas dataframe containing columns 'left_candidates', 'right_candidates', and 'center_candidates'.
+
+    Returns:
+    None
+    """
     colors = ['red', 'white', 'blue']
     sum_left, sum_right, sum_center = df['left_candidates'].sum(), df['right_candidates'].sum(), df['center_candidates'].sum()
 
@@ -172,9 +253,20 @@ def piechart_plotly(df):
     fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
                       marker=dict(colors=colors))
 
-    st.plotly_chart(fig) 
+    st.plotly_chart(fig)
+
 
 def show_data(df,slider_2):
+    """
+    Displays data based on the selected year.
+
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing the data to be displayed.
+    slider_2 (int): The year selected by the user.
+
+    Returns:
+    None
+    """
     if slider_2 == 2012:
         df = df.drop(['color','Code du département'], axis=1)
         cols = ['Département'] + [col for col in df.columns if col != 'Département']
@@ -191,6 +283,18 @@ def show_data(df,slider_2):
         df
 
 def chooser(option,dfannee_2012,dfannee_2017,dfannee_2022):
+    """
+    Displays data based on the selected year and option.
+
+    Parameters:
+    option (str): The option selected by the user.
+    dfannee_2012 (pandas.DataFrame): The DataFrame containing the 2012 data.
+    dfannee_2017 (pandas.DataFrame): The DataFrame containing the 2017 data.
+    dfannee_2022 (pandas.DataFrame): The DataFrame containing the 2022 data.
+
+    Returns:
+    None
+    """
     colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
     col1,col2,col3 = st.columns(3)
     st.header("2012")
@@ -235,12 +339,30 @@ def chooser(option,dfannee_2012,dfannee_2017,dfannee_2022):
     st.plotly_chart(fig)
 
 def sidebar_menu():
+    """
+    Displays the sidebar menu.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
     with st.sidebar:
         st.title('Annalyse of 2012, 2017, and 2022 presidential election')
         st.write('app by Calvin Ndoumbe')
         add_radio = st.write('LinkedIn: https://www.linkedin.com/in/c-ndm/')
 
 def toggle_2022(dfannee_2022):
+    """
+    Displays the 2022 DataFrame.
+
+    Parameters:
+    dfannee_2022 (pandas.DataFrame): The DataFrame containing the 2022 data.
+
+    Returns:
+    None
+    """
     st.write('Dataframe 2022')
     dfannee_2022 = dfannee_2022[['Département','ARTHAUD',
         'ROUSSEL', 'MACRON',
@@ -253,6 +375,15 @@ def toggle_2022(dfannee_2022):
     st.dataframe(dfannee_2022.style.highlight_max(axis=0))
 
 def toggle_2017(dfannee_2017):
+    """
+    Displays the 2017 DataFrame.
+
+    Parameters:
+    dfannee_2017 (pandas.DataFrame): The DataFrame containing the 2017 data.
+
+    Returns:
+    None
+    """
     st.write('Dataframe 2017')
     dfannee_2017 = dfannee_2017[['Département', 'DUPONT-AIGNAN',
        'LE PEN', 'MACRON', 'HAMON', 'ARTHAUD', 'POUTOU', 'CHEMINADE',
@@ -261,12 +392,23 @@ def toggle_2017(dfannee_2017):
     st.dataframe(dfannee_2017.style.highlight_max(axis=0))
 
 def toggle_2012(dfannee_2012):
+    """
+    Displays the 2012 DataFrame.
+
+    Parameters:
+    dfannee_2012 (pandas.DataFrame): The DataFrame containing the 2012 data.
+
+    Returns:
+    None
+    """
     st.write('Dataframe 2012')
     dfannee_2012 = dfannee_2012[['Département','ARTHAUD', 'BAYROU', 'CHEMINADE',
        'DUPONT-AIGNAN', 'HOLLANDE', 'JOLY', 'LE PEN', 'MELENCHON', 'POUTOU',
        'SARKOZY',  'left_candidates', 'right_candidates',
        'center_candidates']]
     st.dataframe(dfannee_2012.style.highlight_max(axis=0))
+
+
 def app():
     sidebar_menu()
     st.subheader('Discover the data',divider='gray')
@@ -328,7 +470,7 @@ def app():
     else:
             barchart_plotly(dfannee_2012)
     st.subheader(" Map of the votes by department in {}".format(slider_2),divider='gray')
-    on6 = st.toggle('Visualize the map wit results')
+    on6 = st.toggle('Visualize the map with results')
     if slider_2 == 2012:
         if on6: 
             st.bokeh_chart(geo_map_vote2(dfannee_2012), use_container_width=True)
@@ -373,10 +515,11 @@ def app():
 
 
     st.subheader('Documentation :',divider='gray')
+    st.write("Please note that the datasets in these documents are not cleared. Consider using the ones available on GitHub instead.")
     st.write("dataset 2012: https://www.data.gouv.fr/fr/datasets/election-presidentielle-2012-resultats-par-bureaux-de-vote-1/#/community-resources")
     st.write("dataset 2017: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/#/community-resources")
     st.write("dataset 2022: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/#/community-resources")
-
+    st.write("github : https://github.com/calvinNdmb/projet_data_vis.git")
 app()
 
 
