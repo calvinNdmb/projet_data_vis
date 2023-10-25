@@ -162,6 +162,17 @@ def show_data(df,slider_2):
         df
 
 def app():
+    add_selectbox = st.sidebar.selectbox(
+        "How would you like to be contacted?",
+        ("Email", "Home phone", "Mobile phone")
+    )
+
+    # Using "with" notation
+    with st.sidebar:
+        add_radio = st.radio(
+            "Choose a shipping method",
+            ("Standard (5-15 days)", "Express (2-5 days)")
+        )
     st.subheader('Annalyse of 2012, 2017, and 2022 presidential election',divider='gray')
     dfannee_2012 = pd.read_csv("2012_cleared.csv", delimiter=',')
     dfannee_2017 = pd.read_csv("2017_cleared.csv", delimiter=',')
