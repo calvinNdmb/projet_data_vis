@@ -240,24 +240,48 @@ def sidebar_menu():
         st.write('app by Calvin Ndoumbe')
         add_radio = st.write('LinkedIn: https://www.linkedin.com/in/c-ndm/')
 
+def toggle_2022(dfannee_2022):
+    st.write('Dataframe 2022')
+    dfannee_2022 = dfannee_2022[['Département','ARTHAUD',
+        'ROUSSEL', 'MACRON',
+       'LASSALLE',  'LE PEN',
+        'ZEMMOUR',  'MÉLENCHON',
+        'HIDALGO',  'JADOT',
+        'PÉCRESSE',  'POUTOU',
+        'DUPONT-AIGNAN', 
+       'left_candidates', 'right_candidates', 'center_candidates']]
+    st.dataframe(dfannee_2022.style.highlight_max(axis=0))
+
+def toggle_2017(dfannee_2017):
+    st.write('Dataframe 2017')
+    dfannee_2017 = dfannee_2017[['Département', 'DUPONT-AIGNAN',
+       'LE PEN', 'MACRON', 'HAMON', 'ARTHAUD', 'POUTOU', 'CHEMINADE',
+       'LASSALLE', 'MÉLENCHON', 'ASSELINEAU', 'FILLON', 'left_candidates',
+       'right_candidates', 'center_candidates']]
+    st.dataframe(dfannee_2017.style.highlight_max(axis=0))
+
+def toggle_2012(dfannee_2012):
+    st.write('Dataframe 2012')
+    dfannee_2012 = dfannee_2012[['Département','ARTHAUD', 'BAYROU', 'CHEMINADE',
+       'DUPONT-AIGNAN', 'HOLLANDE', 'JOLY', 'LE PEN', 'MELENCHON', 'POUTOU',
+       'SARKOZY',  'left_candidates', 'right_candidates',
+       'center_candidates']]
+    st.dataframe(dfannee_2012.style.highlight_max(axis=0))
 def app():
     sidebar_menu()
     st.subheader('Discover the data',divider='gray')
     dfannee_2012 = pd.read_csv("2012_cleared.csv", delimiter=',')
     dfannee_2017 = pd.read_csv("2017_cleared.csv", delimiter=',')
     dfannee_2022 = pd.read_csv("2022_cleared.csv", delimiter=',')
-    on3 = st.toggle('watch dataset 2022')
+    on3 = st.toggle('watch dataset 2012')
     if on3:
-        st.write('Dataframe 2022')
-        show_data(dfannee_2022,2022)
+        toggle_2012(dfannee_2012)
     on4 = st.toggle('watch dataset 2017')
     if on4:
-        st.write('Dataframe 2017')
-        show_data(dfannee_2022,2017)
-    on5 = st.toggle('watch dataset 2012')
+         toggle_2017(dfannee_2017)
+    on5 = st.toggle('watch dataset 2022')
     if on5:
-        st.write('Dataframe 2012')
-        show_data(dfannee_2022,2012)
+        toggle_2022(dfannee_2022)
     slider_annee(dfannee_2012,dfannee_2017,dfannee_2022)
     df = pd.DataFrame({
         'année': [2012, 2017, 2022],
