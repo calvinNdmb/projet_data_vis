@@ -160,23 +160,33 @@ def show_data(df,slider_2):
                       'ROUSSEL_% Voix/Exp','MACRON_% Voix/Exp','LASSALLE_% Voix/Exp','LE PEN_% Voix/Exp','ZEMMOUR_% Voix/Exp','MÉLENCHON_% Voix/Exp',
                       'HIDALGO_% Voix/Exp','JADOT_% Voix/Exp','PÉCRESSE_% Voix/Exp','POUTOU_% Voix/Exp','DUPONT-AIGNAN_% Voix/Exp'], axis=1)
         df
+def chooser(option,dfannee_2012,dfannee_2017,dfannee_2022):
+    st.write("2012")
+    dfannee_2012[dfannee_2012["Département"] == option]
+    st.write("2017")
+    dfannee_2017[dfannee_2017["Département"] == option]
+    st.write("2022")
+    dfannee_2022[dfannee_2022["Département"] == option]["MACRON_% Voix/Exp"]
 
 def app():
-    add_selectbox = st.sidebar.selectbox(
-        "How would you like to be contacted?",
-        ("Email", "Home phone", "Mobile phone")
-    )
-
-    # Using "with" notation
     with st.sidebar:
-        add_radio = st.radio(
-            "Choose a shipping method",
-            ("Standard (5-15 days)", "Express (2-5 days)")
-        )
+        add_radio = st.write('LinkedIn: https://www.linkedin.com/in/c-ndm/')
     st.subheader('Annalyse of 2012, 2017, and 2022 presidential election',divider='gray')
     dfannee_2012 = pd.read_csv("2012_cleared.csv", delimiter=',')
     dfannee_2017 = pd.read_csv("2017_cleared.csv", delimiter=',')
     dfannee_2022 = pd.read_csv("2022_cleared.csv", delimiter=',')
+    on3 = st.toggle('watch dataset 2022')
+    if on3:
+        st.write('Dataframe 2022')
+        show_data(dfannee_2022,2022)
+    on4 = st.toggle('watch dataset 2017')
+    if on4:
+        st.write('Dataframe 2017')
+        show_data(dfannee_2022,2017)
+    on5 = st.toggle('watch dataset 2012')
+    if on5:
+        st.write('Dataframe 2012')
+        show_data(dfannee_2022,2012)
     slider_annee(dfannee_2012,dfannee_2017,dfannee_2022)
     df = pd.DataFrame({
         'année': [2012, 2017, 2022],
@@ -195,11 +205,11 @@ def app():
     on = st.toggle('Watch number of voters in Line')
     on2 = st.toggle('Watch number of voters in Scatter')
     if on:
-        st.write('Feature activated!')
+        st.write('We can observe that less and less people are voting')
         st.line_chart(df.set_index('année')['votes']) 
     if on2:
         st.write("We can't really a great representation of the number of people who voted in these year")
-        st.scatter_chart(df.set_index('année')['votes']) 
+        st.scatter_chart(df.set_index('année')['votes'])  
     slider_2 = st.select_slider(
         'Select a year to plot',
         options=[2012,2017,2022])
@@ -238,8 +248,7 @@ def app():
                                      values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
         fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
                            marker=dict(colors=colors))
-        st.plotly_chart(fig) 
-        show_data(dfannee_2012,slider_2)   
+        st.plotly_chart(fig)   
     elif slider_2 == 2017:
         colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
         sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2017[['ARTHAUD','POUTOU','MÉLENCHON']].sum().sum(),dfannee_2017['HAMON'].sum(),dfannee_2017[['MACRON','ASSELINEAU']].sum().sum(),dfannee_2017[['LASSALLE','FILLON']].sum().sum(),dfannee_2017[['LE PEN', 'CHEMINADE','LASSALLE']].sum().sum()
@@ -247,8 +256,7 @@ def app():
                                      values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
         fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
                            marker=dict(colors=colors))
-        st.plotly_chart(fig)
-        show_data(dfannee_2017,slider_2)     
+        st.plotly_chart(fig)  
     elif slider_2 == 2022:
         colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
         sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2022[['ARTHAUD','POUTOU','MÉLENCHON','ROUSSEL']].sum().sum(),dfannee_2022[['HIDALGO','JADOT']].sum().sum(),dfannee_2022['MACRON'].sum(),dfannee_2022[['LASSALLE','PÉCRESSE']].sum().sum(),dfannee_2022[['LE PEN', 'DUPONT-AIGNAN']].sum().sum()
@@ -257,10 +265,13 @@ def app():
         fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
                            marker=dict(colors=colors))
         st.plotly_chart(fig)
-        show_data(dfannee_2022,slider_2) 
-    st.subheader('Documentation :',divider='gray')
-    st.link_button("dataset 2012", "https://www.data.gouv.fr/fr/datasets/election-presidentielle-2012-resultats-par-bureaux-de-vote-1/#/community-resources")
-    st.link_button("dataset 2017", "https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/#/community-resources")
-    st.link_button("dataset 2022", "https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/#/community-resources")
 
+    option = st.selectbox('what departement do you want to watch',(dfannee_2022["Département"].unique()))
+    chooser(option,dfannee_2012,dfannee_2017,dfannee_2022)
+
+
+    st.subheader('Documentation :',divider='gray')
+    st.write("dataset 2012: https://www.data.gouv.fr/fr/datasets/election-presidentielle-2012-resultats-par-bureaux-de-vote-1/#/community-resources")
+    st.write("dataset 2017: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/#/community-resources")
+    st.write("dataset 2022: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/#/community-resources")
 app()
