@@ -519,7 +519,7 @@ def app():
     st.write("dataset 2012: https://www.data.gouv.fr/fr/datasets/election-presidentielle-2012-resultats-par-bureaux-de-vote-1/#/community-resources")
     st.write("dataset 2017: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/#/community-resources")
     st.write("dataset 2022: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/#/community-resources")
-    st.write("github : https://github.com/calvinNdmb/projet_data_vis.git")
+    st.write("github : https://github.com/calvinndmb/projet_data_vis/tree/main")
 app()
 
 
