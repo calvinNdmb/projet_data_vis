@@ -5,6 +5,8 @@ import geopandas as gpd
 import pandas as pd
 import plotly as pl
 import plotly.graph_objects as go
+from bokeh.models import GeoJSONDataSource, HoverTool
+from bokeh.plotting import figure
 
 #extrem_left = ["ARTHAUD","POUTOU"]
 #extrem_right = ["LE PEN","ZEMMOUR","DUPONT-AIGNAN",'CHEMINADE']
@@ -125,6 +127,33 @@ def geo_map_vote(df):
                     ).add_to(m)
     folium_static(m)
 
+def geo_map_vote2(df):
+    gdf_departments = gpd.read_file("departements.geojson")
+    gdf_departments = gdf_departments.merge(df, left_on='nom', right_on='Département')
+
+    # Convert the GeoDataFrame to a GeoJSON data source for Bokeh
+    geosource = GeoJSONDataSource(geojson=gdf_departments.to_json())
+
+    # Create a new figure
+    p = figure(title='Percentage of Votes by Department')
+
+    # Add department geometries to the figure
+    p.patches('xs', 'ys', source=geosource,
+              fill_color='color',
+              line_color='black',
+              line_width=1.5,
+              fill_alpha=0.7)
+
+    # Add the Hover tool
+    hover = HoverTool()
+    hover.tooltips = [("Department", "@nom"),
+                      ("Percentage of Votes", "@right_candidates"),
+                      ("Percentage of Votes", "@left_candidates"),
+                      ("Percentage of Votes", "@center_candidates")]
+    p.add_tools(hover)
+
+    return p
+
 def barchart_plotly(df):
     fig = go.Figure(data=[
         go.Bar(name='Left', x=df['Département'], y=df['left_candidates'], marker=dict(color='red')),
@@ -160,18 +189,60 @@ def show_data(df,slider_2):
                       'ROUSSEL_% Voix/Exp','MACRON_% Voix/Exp','LASSALLE_% Voix/Exp','LE PEN_% Voix/Exp','ZEMMOUR_% Voix/Exp','MÉLENCHON_% Voix/Exp',
                       'HIDALGO_% Voix/Exp','JADOT_% Voix/Exp','PÉCRESSE_% Voix/Exp','POUTOU_% Voix/Exp','DUPONT-AIGNAN_% Voix/Exp'], axis=1)
         df
+
 def chooser(option,dfannee_2012,dfannee_2017,dfannee_2022):
-    st.write("2012")
-    dfannee_2012[dfannee_2012["Département"] == option]
-    st.write("2017")
-    dfannee_2017[dfannee_2017["Département"] == option]
-    st.write("2022")
-    dfannee_2022[dfannee_2022["Département"] == option]["MACRON_% Voix/Exp"]
+    colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
+    col1,col2,col3 = st.columns(3)
+    st.header("2012")
+    dfannee_2012[dfannee_2012["Département"] == option][['Département','ARTHAUD', 'BAYROU', 'CHEMINADE',
+       'DUPONT-AIGNAN', 'HOLLANDE', 'JOLY', 'LE PEN', 'MELENCHON', 'POUTOU',
+       'SARKOZY',  'left_candidates', 'right_candidates',
+       'center_candidates']]
+    sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2012[dfannee_2022["Département"] == option][['ARTHAUD','POUTOU','MELENCHON']].sum().sum(),dfannee_2012[dfannee_2022["Département"] == option][['JOLY','HOLLANDE']].sum().sum(),dfannee_2012[dfannee_2022["Département"] == option]['BAYROU'].sum(),dfannee_2012[dfannee_2022["Département"] == option]['SARKOZY'].sum(),dfannee_2012[dfannee_2022["Département"] == option][['LE PEN', 'CHEMINADE']].sum().sum()
+    fig = go.Figure(data=[go.Pie(labels=['extrem_left', 'left', 'center', 'right', 'extrem_right'],
+                                     values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
+    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
+                           marker=dict(colors=colors))
+    st.plotly_chart(fig)
+
+    st.header("2017")
+    dfannee_2017[dfannee_2017["Département"] == option][['Département', 'DUPONT-AIGNAN',
+       'LE PEN', 'MACRON', 'HAMON', 'ARTHAUD', 'POUTOU', 'CHEMINADE',
+       'LASSALLE', 'MÉLENCHON', 'ASSELINEAU', 'FILLON', 'left_candidates',
+       'right_candidates', 'center_candidates']]
+    sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2017[dfannee_2022["Département"] == option][['ARTHAUD','POUTOU','MÉLENCHON']].sum().sum(),dfannee_2017[dfannee_2022["Département"] == option]['HAMON'].sum(),dfannee_2017[dfannee_2022["Département"] == option][['MACRON','ASSELINEAU']].sum().sum(),dfannee_2017[dfannee_2022["Département"] == option][['LASSALLE','FILLON']].sum().sum(),dfannee_2017[dfannee_2022["Département"] == option][['LE PEN', 'CHEMINADE','LASSALLE']].sum().sum()
+    fig = go.Figure(data=[go.Pie(labels=['extrem_left', 'left', 'center', 'right', 'extrem_right'],
+                                     values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
+    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
+                           marker=dict(colors=colors))
+    st.plotly_chart(fig)
+
+    st.header("2022")
+    dfannee_2022[dfannee_2022["Département"] == option][['Département','ARTHAUD',
+        'ROUSSEL', 'MACRON',
+       'LASSALLE',  'LE PEN',
+        'ZEMMOUR',  'MÉLENCHON',
+        'HIDALGO',  'JADOT',
+        'PÉCRESSE',  'POUTOU',
+        'DUPONT-AIGNAN', 
+       'left_candidates', 'right_candidates', 'center_candidates']]
+    colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
+    sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2022[dfannee_2022["Département"] == option][['ARTHAUD','POUTOU','MÉLENCHON','ROUSSEL']].sum().sum(),dfannee_2022[dfannee_2022["Département"] == option][['HIDALGO','JADOT']].sum().sum(),dfannee_2022[dfannee_2022["Département"] == option]['MACRON'].sum(),dfannee_2022[dfannee_2022["Département"] == option][['LASSALLE','PÉCRESSE']].sum().sum(),dfannee_2022[dfannee_2022["Département"] == option][['LE PEN', 'DUPONT-AIGNAN']].sum().sum()
+    fig = go.Figure(data=[go.Pie(labels=['extrem_left', 'left', 'center', 'right', 'extrem_right'],
+                                     values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
+    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
+                           marker=dict(colors=colors))
+    st.plotly_chart(fig)
+
+def sidebar_menu():
+    with st.sidebar:
+        st.title('Annalyse of 2012, 2017, and 2022 presidential election')
+        st.write('app by Calvin Ndoumbe')
+        add_radio = st.write('LinkedIn: https://www.linkedin.com/in/c-ndm/')
 
 def app():
-    with st.sidebar:
-        add_radio = st.write('LinkedIn: https://www.linkedin.com/in/c-ndm/')
-    st.subheader('Annalyse of 2012, 2017, and 2022 presidential election',divider='gray')
+    sidebar_menu()
+    st.subheader('Discover the data',divider='gray')
     dfannee_2012 = pd.read_csv("2012_cleared.csv", delimiter=',')
     dfannee_2017 = pd.read_csv("2017_cleared.csv", delimiter=',')
     dfannee_2022 = pd.read_csv("2022_cleared.csv", delimiter=',')
@@ -202,11 +273,11 @@ def app():
                         dfannee_2022['MACRON'].sum(),dfannee_2022['LE PEN'].sum(),dfannee_2022['ZEMMOUR'].sum(),
                         dfannee_2022['HIDALGO'].sum(),dfannee_2022['JADOT'].sum(),dfannee_2022['PÉCRESSE'].sum(),
                         dfannee_2022['POUTOU'].sum(),dfannee_2022['DUPONT-AIGNAN'].sum()])]})
-    on = st.toggle('Watch number of voters in Line')
+    st.header('Number of voters in Line',divider='gray')
+    st.write('We can see that the number of voters is decreasing in 2022')
     on2 = st.toggle('Watch number of voters in Scatter')
-    if on:
-        st.write('We can observe that less and less people are voting')
-        st.line_chart(df.set_index('année')['votes']) 
+    st.write('We can observe that less and less people are voting')
+    st.line_chart(df.set_index('année')['votes']) 
     if on2:
         st.write("We can't really a great representation of the number of people who voted in these year")
         st.scatter_chart(df.set_index('année')['votes'])  
@@ -214,35 +285,44 @@ def app():
         'Select a year to plot',
         options=[2012,2017,2022])
     st.title("Votes by different parties during the year{}".format(slider_2)) 
-    col1,col2,col3 = st.columns(3)
-    with col1:
-        if slider_2 == 2012:
+    
+    if slider_2 == 2012:
             piechart_plotly(dfannee_2012)
-        elif slider_2 == 2017:
+    elif slider_2 == 2017:
             piechart_plotly(dfannee_2017)
-        elif slider_2 == 2022:
+    elif slider_2 == 2022:
             piechart_plotly(dfannee_2022)
-        else:
+    else:
             piechart_plotly(dfannee_2012)
-    with col3:
-        if slider_2 == 2012:
+
+    if slider_2 == 2012:
             barchart_plotly(dfannee_2012)
-        elif slider_2 == 2017:
+    elif slider_2 == 2017:
             barchart_plotly(dfannee_2017)
-        elif slider_2 == 2022:
+    elif slider_2 == 2022:
             barchart_plotly(dfannee_2022)
-        else:
+    else:
             barchart_plotly(dfannee_2012)
     st.subheader(" Map of the votes by department in {}".format(slider_2),divider='gray')
+    on6 = st.toggle('Visualize the map wit results')
     if slider_2 == 2012:
-        geo_map_vote(dfannee_2012)
+        if on6: 
+            st.bokeh_chart(geo_map_vote2(dfannee_2012), use_container_width=True)
+        else:
+            geo_map_vote(dfannee_2012)
     elif slider_2 == 2017:
-        geo_map_vote(dfannee_2017)
+        if on6:
+            st.bokeh_chart(geo_map_vote2(dfannee_2017), use_container_width=True)
+        else:
+            geo_map_vote(dfannee_2017)
     elif slider_2 == 2022:
-        geo_map_vote(dfannee_2022)
+        if on6:
+            st.bokeh_chart(geo_map_vote2(dfannee_2022), use_container_width=True)
+        else:
+            geo_map_vote(dfannee_2022)
     st.subheader("Detailed analyse on extrems {}".format(slider_2),divider='gray')
+    colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
     if slider_2 == 2012:
-        colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
         sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2012[['ARTHAUD','POUTOU','MELENCHON']].sum().sum(),dfannee_2012[['JOLY','HOLLANDE']].sum().sum(),dfannee_2012['BAYROU'].sum(),dfannee_2012['SARKOZY'].sum(),dfannee_2012[['LE PEN', 'CHEMINADE']].sum().sum()
         fig = go.Figure(data=[go.Pie(labels=['extrem_left', 'left', 'center', 'right', 'extrem_right'],
                                      values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
@@ -250,7 +330,6 @@ def app():
                            marker=dict(colors=colors))
         st.plotly_chart(fig)   
     elif slider_2 == 2017:
-        colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
         sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2017[['ARTHAUD','POUTOU','MÉLENCHON']].sum().sum(),dfannee_2017['HAMON'].sum(),dfannee_2017[['MACRON','ASSELINEAU']].sum().sum(),dfannee_2017[['LASSALLE','FILLON']].sum().sum(),dfannee_2017[['LE PEN', 'CHEMINADE','LASSALLE']].sum().sum()
         fig = go.Figure(data=[go.Pie(labels=['extrem_left', 'left', 'center', 'right', 'extrem_right'],
                                      values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
@@ -258,14 +337,13 @@ def app():
                            marker=dict(colors=colors))
         st.plotly_chart(fig)  
     elif slider_2 == 2022:
-        colors = ['Maroon', 'red', 'white', '#0087FF', 'blue']
         sum_extrem_left,sum_left,sum_center,sum_right,sum_extrem_right= dfannee_2022[['ARTHAUD','POUTOU','MÉLENCHON','ROUSSEL']].sum().sum(),dfannee_2022[['HIDALGO','JADOT']].sum().sum(),dfannee_2022['MACRON'].sum(),dfannee_2022[['LASSALLE','PÉCRESSE']].sum().sum(),dfannee_2022[['LE PEN', 'DUPONT-AIGNAN']].sum().sum()
         fig = go.Figure(data=[go.Pie(labels=['extrem_left', 'left', 'center', 'right', 'extrem_right'],
                                      values=[sum_extrem_left, sum_left, sum_center, sum_right, sum_extrem_right])])
         fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20,
                            marker=dict(colors=colors))
         st.plotly_chart(fig)
-
+    st.subheader("Detailed analyse on departement {}".format(slider_2),divider='gray')
     option = st.selectbox('what departement do you want to watch',(dfannee_2022["Département"].unique()))
     chooser(option,dfannee_2012,dfannee_2017,dfannee_2022)
 
@@ -274,4 +352,9 @@ def app():
     st.write("dataset 2012: https://www.data.gouv.fr/fr/datasets/election-presidentielle-2012-resultats-par-bureaux-de-vote-1/#/community-resources")
     st.write("dataset 2017: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/#/community-resources")
     st.write("dataset 2022: https://www.data.gouv.fr/fr/datasets/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/#/community-resources")
+
 app()
+
+
+
+

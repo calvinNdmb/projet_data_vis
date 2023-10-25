@@ -2,3 +2,4 @@ streamlit_folium
 folium
 geopandas
 plotly
+bokeh==2.4.3
