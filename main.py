@@ -68,7 +68,7 @@ def slider_annee(dfannee_2012,dfannee_2017,dfannee_2022):
 
     if slid == 2012:
         df=dfannee_2012
-        st.write("## Graphique des votes par candidat pour l'année 2012")
+        st.write("## Graph of votes per candidate for the year 2012")
         st.bar_chart([df['ARTHAUD'].sum(),df['BAYROU'].sum(),df['CHEMINADE'].sum(),
                     df['DUPONT-AIGNAN'].sum(),df['HOLLANDE'].sum(),df['JOLY'].sum(),
                     df['LE PEN'].sum(),df['MELENCHON'].sum(),df['POUTOU'].sum(),
@@ -254,7 +254,6 @@ def piechart_plotly(df):
                       marker=dict(colors=colors))
 
     st.plotly_chart(fig)
-
 
 def show_data(df,slider_2):
     """
