@@ -144,7 +144,7 @@ def geo_map_vote(df):
     --------
     None
     """
-    m = folium.Map(location=[46.603354, 1.888334], min_zoom=6, max_zoom=6)
+    m = folium.Map(location=[46.603354, 1.888334], min_zoom=5, max_zoom=6)
     gdf_departments = gpd.read_file("departements.geojson")
     gdf_departments = gdf_departments.merge(df, left_on='nom', right_on='Département')
     folium.GeoJson(gdf_departments,
